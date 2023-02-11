@@ -1,0 +1,50 @@
+name: mingw64
+
+on:
+  #push:
+  #  branches: [ master ]
+
+  #pull_request:
+  #  branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-2019
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-autotools
+            mingw-w64-x86_64-fluidsynth
+            mingw-w64-x86_64-openal
+            mingw-w64-x86_64-smpeg
+            mingw-w64-x86_64-SDL
+            mingw-w64-x86_64-libvorbis
+            mingw-w64-x86_64-libmikmod
+            mingw-w64-x86_64-libmad
+            mingw-w64-x86_64-flac
+
+      - name: Clone repository
+        uses: actions/checkout@v3
+
+      - name: Configure and build
+        run: makepkg-mingw
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: mingw-w64-x86_64-SDL_mixer
+          path: '*.pkg.tar.zst'
